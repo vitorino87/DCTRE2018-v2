@@ -105,6 +105,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Checar" />
+            
+            <Button
+                android:id="@+id/btnTema"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tema" />
         </LinearLayout>
 
         <LinearLayout

@@ -15,7 +15,7 @@ public class QuestaoConector extends Activity{
 	protected int[] a = new int[h];
 	protected int[][] b = new int[h][6];
 	
-	public int get_ValorDasStringDaRes(int valor){
+	public int get_EnderecoDaQuestao(int valor){
 		valor = this.a[valor];
 		return valor;
 	}

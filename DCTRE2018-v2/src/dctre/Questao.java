@@ -23,16 +23,14 @@ import android.widget.Toast;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 
+///////////////////////////////////////// INÍCIO DA CLASSE ///////////////////////////////////////////////////////////////////////////////////////////////////	
 public class Questao extends QuestaoConector implements OnItemSelectedListener{
+	
+///////////////////////////////// VARIÁVEIS PÚBLICAS /////////////////////////////////////////////////////////////////////////////////////////////////////////	
+	
+	
 	// variável utilizada para trabalhar com o método checked
-	private int z = -1;
-
-	// variável para trabalhar com o método randomizar;
-	// private int k;
-
-	// variável para tratar a quantidade de questões
-	// Essa variável responde à questão: Quantas questões há no aplicativo?
-	// private final int h = 205;
+	private int z = -1;	
 
 	// variável para trabalhar com o método embaralhar
 	private int[] w = new int[h];
@@ -40,18 +38,27 @@ public class Questao extends QuestaoConector implements OnItemSelectedListener{
 	// Variáveis para tratar com os objetos da tela2
 	TextView tv;
 	RadioButton[] rd = new RadioButton[5];
-	Button btnRandom, btnChecar, btnBuscar, btnAnterior, btnProximo, btnSortear;
+	Button btnRandom, btnChecar, btnBuscar, btnAnterior, btnProximo, btnSortear, btnTema;
 	EditText txtBuscar;
 	Spinner btnSpinner;
 
 	// variáveis para impedir que o random repita números
-	// private int[] e = new int[h];
 	private int f = 0;
+	
+	// variável global para auxiliar contagem das questões temáticas
+	private int auxiliarTema = 0;
+	
+	//Essas variáveis são utilizadas para trabalhar com o Spinner
+	List <String> temas;
+	List <Integer> conectorAuxiliar;	
+	List <Integer> questoesTematicas;
+	
+///////////////////////////////// FIM DAS VARIÁVEIS PÚBLICAS /////////////////////////////////////////////////////////////////////////////////////////////////////////	
 
-	// variáveis para tratar os R.string, isto é, as strings do programa
-	// private int[] a = new int[h];
-	// private int[][] b = new int[h][6];
-
+	
+	
+///////////////////////////////////////// INÍCIO DO MÉTODO PRINCIPAL ////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	// método para trabalhar com a tela2
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -74,10 +81,16 @@ public class Questao extends QuestaoConector implements OnItemSelectedListener{
 		btnSortear = (Button)findViewById(R.id.btnSortear);
 		txtBuscar = (EditText) findViewById(R.id.editText1);
 		btnSpinner = (Spinner) findViewById(R.id.escolhedor);
+		btnTema = (Button) findViewById(R.id.btnTema);
+		questoesTematicas = new ArrayList<Integer>();
+		
+		
 		if(z!=-1){
 			carregarQuestao(z);
 			f=z;
 		}
+
+/////////////////////////////INÍCIO DOS MÉTODOS DOS BOTÕES////////////////////////////////////////////////////////////////		
 
 		// método para trabalhar com o Sortear
 		btnSortear.setOnClickListener(new View.OnClickListener() {
@@ -85,7 +98,7 @@ public class Questao extends QuestaoConector implements OnItemSelectedListener{
 			public void onClick(View v) {
 				if (f < h) {
 					// o array w possui os números das questões embaralhadas, a
-					// variável f irá orientar esse array, iniciando de 0 até 98
+					// variável f irá orientar esse array, iniciando de 0 até ...
 					z = w[f];
 					carregarQuestao(z);
 					f++; // incrementando a variável f que armazena a posição do
@@ -123,7 +136,6 @@ public class Questao extends QuestaoConector implements OnItemSelectedListener{
 				if (z > 0) {
 					carregarQuestao(--z);
 				}
-				//carregarQuestao(--z);
 			}
 		});
 		
@@ -136,11 +148,15 @@ public class Questao extends QuestaoConector implements OnItemSelectedListener{
 				if (z < h) {
 					carregarQuestao(++z);
 				}
-				//carregarQuestao(++z);xzxz
 			}
 		});
 		
 		//método para trabalhar com o botão Random
+		//Tudo que esse método faz é randomizar, apenas isso... 
+		//Após clicar em Randomizar, é necessário clicar em Sortear para que
+		//esse método faça sentido... Caso contrário, se o usuário ficar sempre clicando no
+		//botão Randomizar, o array na posição w[0] sempre será atualizado, e não será reaproveitado as
+		//outras posições
 		btnRandom.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
@@ -151,112 +167,113 @@ public class Questao extends QuestaoConector implements OnItemSelectedListener{
 				carregarQuestao(w[f]);
 			}
 		});
+		
+		//método para selecionar perguntas do mesmo tema, ele trabalha em conjunto com 
+		// O CÓDIGO PARA TRABALHAR COM O SPINNER e com os
+		// MÉTODOS PARA TRABALHAR COM O ITEM SELECIONADO PELO SPINNER
+		btnTema.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub				
+				carregarQuestao(questoesTematicas.get(auxiliarTema++));				
+			}
+		});
+		
+/////////////////////////////FIM DOS MÉTODOS DOS BOTÕES////////////////////////////////////////////////////////////////		
 				
 		Resources rc = this.getResources();
-		QuestaoConector qc = new QuestaoConector();
-		List <String> temas = new ArrayList<String>();
-		List <String> temas2 = new ArrayList<String>();
-		//int[][] questoes = new int[qc.get_QtdeDeQuestoes()][qc.get_QtdeDeQuestoes()];
-		//List<List<String>> listOfLists = new ArrayList<List<String>>();
-		temas.add("a");
-		//temas.add("b");
-		//temas2.add("c");
-		//listOfLists.add(temas);
-		//listOfLists.add(temas2);
-		//temas.add("d");
-		//listOfLists.add(temas);
-		String stringParaSerProcessada="";
-		int paraAjudarOProcessamento=-1;
-		for(int i=0;i<qc.get_QtdeDeQuestoes();i++){
-			String a = rc.getString(qc.get_ValorDasStringDaRes(i));
-			String b = (String) a.subSequence(a.indexOf("[")+1, a.indexOf("]"));				
-			if(temas.indexOf(b)==-1){
-				temas.add(b);				
-				//paraAjudarOProcessamento=temas.indexOf(b);
-				//stringParaSerProcessada+="|"+paraAjudarOProcessamento+":"+qc.get_ValorDasStringDaRes(i);				
-			}//else{				
+		//QuestaoConector qc = new QuestaoConector();
+		temas = new ArrayList<String>();
+		temas.add("TODOS OS TEMAS"); //essa adição serve apenas para deixar o primeiro item vazio
+		conectorAuxiliar = new ArrayList<Integer>();
+		//enderecoDaQuestao = new ArrayList<Integer>();
 				
-			//}
-			paraAjudarOProcessamento=temas.indexOf(b);
-			stringParaSerProcessada+="|"+paraAjudarOProcessamento+":"+qc.get_ValorDasStringDaRes(i);
-		}
+		for(int i=0;i<get_QtdeDeQuestoes();i++){                      //esse laço permite percorrer por todas as questões
+			String a = rc.getString(get_EnderecoDaQuestao(i));        //essa linha faz o resgate do enunciado da questão
+			String b = (String) a.subSequence(a.indexOf("[")+1, a.indexOf("]"));	//essa linha faz a limpeza do enunciado da questão, retornando apenas o tema			
+			if(temas.indexOf(b)==-1){                                    //essa linha verifica se o tema já existe na variável temas
+				temas.add(b);												//se o tema não existir, ele será adicionado											
+			}															
+			conectorAuxiliar.add(temas.indexOf(b));	//essa variável irá armazenar a posição da variável temas correspondente a variável b
+													//por que essa posição? Porque ela é única e mais fácil de processar do que uma String.
+													//Assim, cada elemento desta lista terá um valor relacionado ao tema correspondente.
+													//Num contexto geral, essa variável faz a ligação entre o tema e a questão do tema
+		}		
 		
 		
 		
 		
+///////////////////////INÍCIO DO CÓDIGO PARA TRABALHAR COM O SPINNER/////////////////////////////////////////////////////////////////////////////////////////////////////////	
 		
-		
-		
-		//list.add(b);
-		//list.add(c);
-		//int ab = list.indexOf("tiago");
-		//int ac = list.indexOf("vitorino");
-		//int x = 0;
-		
-		//Field fd = null;
-//		R r = new R();
-		
-		//Field[] cls = R.class.getFields();
-		
-		//String a = fd.getName();
-		//List ff = fd;
-		
-		//String test = rc.getStringArray(R.class.);
-		
-		
-		//List <String> list = new ArrayList<String>();
-		
-		
-		
-						
+		// O código abaixo foi retirado na internet especificamente do Tutorials Point
+		// Segue o endereço https://www.tutorialspoint.com/android/android_spinner_control.htm
+		// Alterei apenas a variável categorias por temas
 		// Spinner click listener
 	      btnSpinner.setOnItemSelectedListener((OnItemSelectedListener) this);
 	      
-	      // Spinner Drop down elements
-	      List<String> categories = new ArrayList<String>();
-	      categories.add("Automobile");
-	      categories.add("Business Services");
-	      categories.add("Computers");
-	      categories.add("Education");
-	      categories.add("Personal");
-	      categories.add("Travel");
-	      
 	      // Creating adapter for spinner
-	      ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, categories);
+	      ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, temas);
 	      
 	      // Drop down layout style - list view with radio button
 	      dataAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
 	      
 	      // attaching data adapter to spinner
-	      btnSpinner.setAdapter(dataAdapter);				
+	      btnSpinner.setAdapter(dataAdapter);			      
+	      
+///////////////////////FIM DO CÓDIGO PARA TRABALHAR COM O SPINNER/////////////////////////////////////////////////////////////////////////////////////////////////////////		      
 	}
 	
+///////////////////////////////////////// FIM DO MÉTODO PRINCIPAL ////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	
+///////////////////////////////////////// INÍCIO DOS MÉTODOS AUXILIARES //////////////////////////////////////////////////////////////////////////////////////////////////	
+	
+	
+//////// MÉTODO PARA TRABALHAR COM O ITEM SELECIONADO PELO SPINNER/////////////////////////////////////////////
 	@Override
 	   public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 	      // On selecting a spinner item
 	      String item = parent.getItemAtPosition(position).toString();
-	      
+	      if(item!="TODOS OS TEMAS"){
+	    	  carregarArrayComQuestoesDoTemaSelecionado(item);	
+	    	  carregarQuestao(questoesTematicas.get(auxiliarTema++));
+	      }
 	      // Showing selected spinner item
-	      Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
+	      Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();	      
+	      
 	   }
 	   public void onNothingSelected(AdapterView<?> arg0) {
 	      // TODO Auto-generated method stub
 	   }
-
+	   
+	   public void carregarArrayComQuestoesDoTemaSelecionado(String tema){
+		   int posicaoDoTema = temas.indexOf(tema);
+		   int i = conectorAuxiliar.size();
+		   for(int j=0;j<i;j++){
+			   if(conectorAuxiliar.get(j) == posicaoDoTema){
+				   questoesTematicas.add(j);
+			   }
+		   }
+	   }
+	   
+////////FIM DO MÉTODO PARA TRABALHAR COM O ITEM SELECIONADO PELO SPINNER///////////////////////////////////////	   	  
+	   
+	   	   
 	/**
-	 * Serve para carregar a questão especificada na tela2
-	 * 
+	 * Serve para carregar uma questão na tela2
 	 * @param questao
+	 * precisa informar o número da questão por meio da variável questao
 	 */
 	public void carregarQuestao(int questao) {
-		z = questao;
-		tv.setText(a[questao]);
-		rd[0].setText(b[questao][0]);
+		z = questao;										//* a variável z armazena o número da questão para verificar se ela está correta		 		 		
+		tv.setText(a[questao]);								//* a variável tv carrega o enunciado na tela
+		rd[0].setText(b[questao][0]);						//* o array rd carrega cada uma das alternativas
 		rd[1].setText(b[questao][1]);
 		rd[2].setText(b[questao][2]);
 		rd[3].setText(b[questao][3]);
 		rd[4].setText(b[questao][4]);
-		txtBuscar.setText(String.valueOf(questao));
+		txtBuscar.setText(String.valueOf(questao));			//* a variável txtBuscar carrega o número da questão na tela
 	}
 	/*
 	 * Serve para guardar as variáveis atuais do app
@@ -318,4 +335,7 @@ public class Questao extends QuestaoConector implements OnItemSelectedListener{
         super.onResume();
         // The activity has become visible (it is now "resumed").
     }
+///////////////////////////////////////// FIM DOS MÉTODOS AUXILIARES //////////////////////////////////////////////////////////////////////////////////////////////////		
 }
+
+///////////////////////////////////////// FIM DA CLASSE //////////////////////////////////////////////////////////////////////////////////////////////////	
